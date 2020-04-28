@@ -7,12 +7,10 @@ setup(
         CUDAExtension('enclib_gpu', [
             'operator.cpp',
             'activation_kernel.cu',
-            'encoding_kernel.cu',
             'syncbn_kernel.cu',
-            'roi_align_kernel.cu',
-            'nms_kernel.cu',
-            'rectify.cu',
-            ]),
+            ],
+            extra_compile_args={'cxx':['-g'] ,'nvcc': ['--extended-lambda']}
+            ),
     ],
     cmdclass={
         'build_ext': BuildExtension

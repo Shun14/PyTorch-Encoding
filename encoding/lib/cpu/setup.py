@@ -6,10 +6,7 @@ setup(
     ext_modules=[
         CppExtension('enclib_cpu', [
             'operator.cpp',
-            'roi_align_cpu.cpp',
-            'encoding_cpu.cpp',
-            'syncbn_cpu.cpp',
-            'nms_cpu.cpp',
+            'syncbn_cpu.cpp'
             ]),
     ],
     cmdclass={

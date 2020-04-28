@@ -20,18 +20,10 @@ def _assert_tensor_close(a, b, atol=ATOL, rtol=EPS):
     npa, npb = a.cpu().numpy(), b.cpu().numpy()
     assert np.allclose(npa, npb, rtol=rtol, atol=atol), \
         'Tensor close check failed\n{}\n{}\nadiff={}, rdiff={}'.format(
-            a, b, np.abs(npa - npb).max(), np.abs((npa - npb) / np.fmax(npa, 1e-5)).max())
-
-def test_encoding():
-    B,C,H,W,K = 2,3,4,5,6
-    X = Variable(torch.cuda.DoubleTensor(B,C,H,W).uniform_(-0.5,0.5), 
-        requires_grad=True)
-    input = (X,)
-    layer = encoding.nn.Encoding(C,K).double().cuda()
-    test = gradcheck(layer, input, eps=EPS, atol=ATOL)
-    print('Testing encoding(): {}'.format(test))
+            a, b, np.abs(npa - npb).max(), np.abs((npa - npb) / np.fmax(npa, 1e-6)).max())
 
 def test_all_reduce():
+    print('all reduce')
     ngpu = torch.cuda.device_count()
     X = [torch.DoubleTensor(2,4,4).uniform_(-0.5,0.5).cuda(i) for i in range(ngpu)]
     for x in X:
@@ -98,19 +90,12 @@ def testSyncBN():
     sync_bn = encoding.nn.SyncBatchNorm(10, inplace=True, sync=True).cuda().double()
     sync_bn = torch.nn.DataParallel(sync_bn).cuda()
     # check with unsync version
+    print('check BN')
     #_check_batchnorm_result(bn, sync_bn, torch.rand(2, 1, 2, 2).double(), True, cuda=True)
     for i in range(10):
         print(i)
         _check_batchnorm_result(bn, sync_bn, torch.rand(16, 10, 16, 16).double(), True, cuda=True)
         _check_batchnorm_result(bn, sync_bn, torch.rand(16, 10, 16, 16).double(), False, cuda=True)
-
-
-def test_Atten_Module():
-    B, C, H, W = 8, 24, 10, 10
-    X = Variable(torch.cuda.DoubleTensor(B,C,H,W).uniform_(-0.5,0.5), 
-                 requires_grad=True)
-    layer1 = encoding.nn.ACFModule(4, 2, 24, 24, 24).double().cuda()
-    Y = layer1(X)
 
 if __name__ == '__main__':
     import nose
